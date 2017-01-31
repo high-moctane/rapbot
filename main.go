@@ -15,7 +15,7 @@ import (
 	"github.com/high-moctane/go-rhymer"
 )
 
-const LearnMax = 5000
+const LearnMax = 10000
 
 var TokenPath = filepath.Join(os.Getenv("HOME"), ".config", "go-rapbot", "token.json")
 var MeCabParam = map[string]string{}
@@ -84,8 +84,6 @@ func Learn(s *twitter.Stream, d *Dict) {
 		if !isValidTweet(tweet) {
 			return
 		}
-		// log.Println(d.Count)
-		// log.Println(BodyText(tweet), "\n")
 		d.Trainee.Add(BodyText(tweet))
 		d.TryShift()
 	}
@@ -141,14 +139,12 @@ func main() {
 	}
 	ContinuousLearn(stream, &dict)
 
-	rh := rhymer.New(&dict.Pro, &MoraWeight, Similarity, MoraLen)
-
 	for !dict.Ready {
 		time.Sleep(1 * time.Second)
 	}
 
-	rhymes, genStop := rh.Stream(3)
-	defer func() { genStop <- true }()
+	rhymers := NewRhymers(&dict, &MoraWeight, Similarity, []int{5, 6, 6, 6, 6, 7, 7})
+	rhymes := rhymers.Stream([]int{2, 3, 3, 4, 4}, 100)
 
 	PeriodicTweet(rhymes)
 
