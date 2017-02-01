@@ -37,5 +37,11 @@ func (r *Rhymers) Stream(ls []int, buflen int) <-chan []mecabs.Phrase {
 			}
 		}
 	}()
+	go func() {
+		for {
+			<-ans
+			time.Sleep(10 * time.Minute)
+		}
+	}()
 	return (<-chan []mecabs.Phrase)(ans)
 }
