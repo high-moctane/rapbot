@@ -73,6 +73,9 @@ func isValidTweet(tweet *twitter.Tweet) bool {
 	if tweet.RetweetCount > 0 {
 		return false
 	}
+	if tweet.User.FavouritesCount < 10 {
+		return false
+	}
 	return true
 }
 
