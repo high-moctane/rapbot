@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/high-moctane/go-markov_chain_Japanese"
 	"github.com/high-moctane/go-mecab_slice"
 )
@@ -30,6 +32,7 @@ func (d *Dict) Shift() {
 	d.Pro.Data = d.Trainee.Data
 	d.Trainee = markov.New(d.mecabs, &dm)
 	d.Ready = true
+	log.Println("shift!")
 }
 
 func (d *Dict) TryShift() {
