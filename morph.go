@@ -81,9 +81,11 @@ func (m *Morph) String() string {
 
 // NewMorphs makes new Morphs from tokens.
 func NewMorphs(tokens []tokenizer.Token) Morphs {
-	morphs := make(Morphs, len(tokens))
-	for i, token := range tokens {
-		morphs[i] = NewMorph(token)
+	morphs := make(Morphs, 0, len(tokens))
+	for _, token := range tokens {
+		if m := NewMorph(token); *m != MorphBOS && *m != MorphEOS {
+			morphs = append(morphs, m)
+		}
 	}
 	return morphs
 }

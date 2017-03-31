@@ -77,14 +77,12 @@ func TestNewMorphs(t *testing.T) {
 	}{
 		{
 			input: "",
-			want:  Morphs{&MorphBOS, &MorphEOS},
+			want:  Morphs{},
 		},
 		{
 			input: "愛",
 			want: Morphs{
-				&MorphBOS,
 				&Morph{"愛", "名詞", "一般", "*", "*", "*", "*", "愛", "アイ", "アイ"},
-				&MorphEOS,
 			},
 		},
 	}

@@ -15,9 +15,7 @@ func TestNewMorphizer(t *testing.T) {
 			input: []string{"a"},
 			want: []Morphs{
 				Morphs{
-					&MorphBOS,
 					&Morph{"a", "名詞", "固有名詞", "組織", "*", "*", "*", "*", "", ""},
-					&MorphEOS,
 				},
 			},
 		},
@@ -25,19 +23,13 @@ func TestNewMorphizer(t *testing.T) {
 			input: []string{"a", "b", "c"},
 			want: []Morphs{
 				Morphs{
-					&MorphBOS,
 					&Morph{"a", "名詞", "固有名詞", "組織", "*", "*", "*", "*", "", ""},
-					&MorphEOS,
 				},
 				Morphs{
-					&MorphBOS,
 					&Morph{"b", "名詞", "固有名詞", "組織", "*", "*", "*", "*", "", ""},
-					&MorphEOS,
 				},
 				Morphs{
-					&MorphBOS,
 					&Morph{"c", "名詞", "固有名詞", "組織", "*", "*", "*", "*", "", ""},
-					&MorphEOS,
 				},
 			},
 		},
