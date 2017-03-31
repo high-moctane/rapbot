@@ -7,45 +7,40 @@ import (
 )
 
 // NewMorph makes new Morph from token.
-func NewMorph(token tokenizer.Token) (*Morph, bool) {
-	switch token.Class {
+func NewMorph(token tokenizer.Token) *Morph {
 	// BOS or EOS
-	case tokenizer.DUMMY:
-		switch token.Surface {
-		case "BOS":
-			return &MorphBOS, true
-		case "EOS":
-			return &MorphEOS, true
+	if token.Class == tokenizer.DUMMY {
+		if token.Surface == "BOS" {
+			return &MorphBOS
 		}
+		return &MorphEOS
+	}
 
 	// ordinary morph
-	case tokenizer.KNOWN, tokenizer.USER:
-		m := &Morph{Surface: token.Surface}
-		for i, f := range token.Features() {
-			switch i {
-			case 0:
-				m.PartOfSpeech = f
-			case 1:
-				m.PartOfSpeechSection1 = f
-			case 2:
-				m.PartOfSpeechSection2 = f
-			case 3:
-				m.PartOfSpeechSection3 = f
-			case 4:
-				m.ConjugatedForm1 = f
-			case 5:
-				m.ConjugatedForm2 = f
-			case 6:
-				m.Inflection = f
-			case 7:
-				m.Reading = f
-			case 8:
-				m.Pronounciation = f
-			}
+	m := &Morph{Surface: token.Surface}
+	for i, f := range token.Features() {
+		switch i {
+		case 0:
+			m.PartOfSpeech = f
+		case 1:
+			m.PartOfSpeechSection1 = f
+		case 2:
+			m.PartOfSpeechSection2 = f
+		case 3:
+			m.PartOfSpeechSection3 = f
+		case 4:
+			m.ConjugatedForm1 = f
+		case 5:
+			m.ConjugatedForm2 = f
+		case 6:
+			m.Inflection = f
+		case 7:
+			m.Reading = f
+		case 8:
+			m.Pronounciation = f
 		}
-		return m, true
 	}
-	return nil, false
+	return m
 }
 
 // Morph stores morpheme's properties.
@@ -85,16 +80,12 @@ func (m *Morph) String() string {
 }
 
 // NewMorphs makes new Morphs from tokens.
-func NewMorphs(tokens []tokenizer.Token) (Morphs, bool) {
+func NewMorphs(tokens []tokenizer.Token) Morphs {
 	morphs := make(Morphs, len(tokens))
 	for i, token := range tokens {
-		morph, ok := NewMorph(token)
-		if !ok {
-			return nil, false
-		}
-		morphs[i] = morph
+		morphs[i] = NewMorph(token)
 	}
-	return morphs, true
+	return morphs
 }
 
 // Morphs is a slice of Morph.

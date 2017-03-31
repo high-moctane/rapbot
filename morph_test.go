@@ -71,27 +71,20 @@ func TestMorphsIsEqual(t *testing.T) {
 }
 
 func TestNewMorphs(t *testing.T) {
-	type answer struct {
-		Morphs
-		ok bool
-	}
 	tests := []struct {
 		input string
-		want  answer
+		want  Morphs
 	}{
 		{
 			input: "",
-			want:  answer{Morphs: Morphs{&MorphBOS, &MorphEOS}, ok: true},
+			want:  Morphs{&MorphBOS, &MorphEOS},
 		},
 		{
 			input: "愛",
-			want: answer{
-				Morphs: Morphs{
-					&MorphBOS,
-					&Morph{"愛", "名詞", "一般", "*", "*", "*", "*", "愛", "アイ", "アイ"},
-					&MorphEOS,
-				},
-				ok: true,
+			want: Morphs{
+				&MorphBOS,
+				&Morph{"愛", "名詞", "一般", "*", "*", "*", "*", "愛", "アイ", "アイ"},
+				&MorphEOS,
 			},
 		},
 	}
@@ -100,10 +93,10 @@ func TestNewMorphs(t *testing.T) {
 
 	for _, test := range tests {
 		tokens := kagome.Tokenize(test.input)
-		ms, ok := NewMorphs(tokens)
-		if !ms.IsEqual(test.want.Morphs) || ok != test.want.ok {
-			t.Errorf("NewMorphs(%q) = %v, %v, want %v, %v\n",
-				test.input, ms, ok, test.want.Morphs, test.want.ok)
+		ms := NewMorphs(tokens)
+		if !ms.IsEqual(test.want) {
+			t.Errorf("NewMorphs(%q) = %v, want %v\n",
+				test.input, ms, test.want)
 		}
 	}
 }
