@@ -26,18 +26,18 @@ func NewMorphizer() (<-chan Morphs, chan<- string, func()) {
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
+			defer wg.Done()
+
 			kagome := tokenizer.New()
 			for {
 				select {
 				// interrupt
 				case <-sign:
-					wg.Done()
 					return
 
 				// parse
 				case str, ok := <-in:
 					if !ok {
-						wg.Done()
 						return
 					}
 					tokens := kagome.Tokenize(str)
