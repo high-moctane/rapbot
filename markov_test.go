@@ -380,12 +380,10 @@ func TestMarkovServer(t *testing.T) {
 	}()
 
 	ans := []Morphs{}
-	go func() {
-		for ms := range out {
-			ans = append(ans, ms)
+	for ms := range out {
+		ans = append(ans, ms)
+		if len(ans) > 100 {
+			return
 		}
-	}()
-	if len(ans) > 100 {
-		return
 	}
 }
