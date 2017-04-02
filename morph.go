@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/ikawaha/kagome/tokenizer"
@@ -104,4 +105,40 @@ func (ms Morphs) IsEqual(a Morphs) bool {
 		}
 	}
 	return true
+}
+
+func (ms Morphs) String() string {
+	ans := []string{}
+	for _, m := range ms {
+		ans = append(ans, m.String())
+	}
+	return fmt.Sprint(ans)
+}
+
+// Surface returns ms's surface.
+// When ms contains empty surface, it returns false.
+func (ms Morphs) Surface() (string, bool) {
+	ans := make([]string, 0, len(ms))
+	ok := true
+	for _, m := range ms {
+		if m.Surface == "" {
+			ok = false
+		}
+		ans = append(ans, m.Surface)
+	}
+	return strings.Join(ans, ""), ok
+}
+
+// Pronounciation returns ms's pronounciation.
+// When ms contains empty pronounciation, it returns false.
+func (ms Morphs) Pronounciation() (string, bool) {
+	ans := make([]string, 0, len(ms))
+	ok := true
+	for _, m := range ms {
+		if m.Pronounciation == "" {
+			ok = false
+		}
+		ans = append(ans, m.Pronounciation)
+	}
+	return strings.Join(ans, ""), ok
 }

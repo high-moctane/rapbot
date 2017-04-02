@@ -98,3 +98,69 @@ func TestNewMorphs(t *testing.T) {
 		}
 	}
 }
+
+func TestMorphsSurface(t *testing.T) {
+	type answer struct {
+		surface string
+		ok      bool
+	}
+	tests := []struct {
+		input Morphs
+		want  answer
+	}{
+		{
+			input: Morphs{{Surface: "a"}},
+			want:  answer{surface: "a", ok: true},
+		},
+		{
+			input: Morphs{{Surface: "a"}, {Surface: "b"}},
+			want:  answer{surface: "ab", ok: true},
+		},
+		{
+			input: Morphs{{Surface: ""}, {Surface: "b"}},
+			want:  answer{surface: "b", ok: false},
+		},
+	}
+
+	for _, test := range tests {
+		var ans answer
+		ans.surface, ans.ok = test.input.Surface()
+		if ans != test.want {
+			t.Errorf("(Morphs).Surface() = %q, %v, want %q, %v",
+				ans.surface, ans.ok, test.want.surface, test.want.ok)
+		}
+	}
+}
+
+func TestMorphsPronounciation(t *testing.T) {
+	type answer struct {
+		pronounciation string
+		ok             bool
+	}
+	tests := []struct {
+		input Morphs
+		want  answer
+	}{
+		{
+			input: Morphs{{Pronounciation: "a"}},
+			want:  answer{pronounciation: "a", ok: true},
+		},
+		{
+			input: Morphs{{Pronounciation: "a"}, {Pronounciation: "b"}},
+			want:  answer{pronounciation: "ab", ok: true},
+		},
+		{
+			input: Morphs{{Pronounciation: ""}, {Pronounciation: "b"}},
+			want:  answer{pronounciation: "b", ok: false},
+		},
+	}
+
+	for _, test := range tests {
+		var ans answer
+		ans.pronounciation, ans.ok = test.input.Pronounciation()
+		if ans != test.want {
+			t.Errorf("(Morphs).Pronounciation() = %q, %v, want %q, %v",
+				ans.pronounciation, ans.ok, test.want.pronounciation, test.want.ok)
+		}
+	}
+}
