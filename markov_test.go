@@ -1,11 +1,9 @@
 package main
 
 import (
-	"testing"
-
 	"reflect"
-
 	"sync"
+	"testing"
 
 	"github.com/k0kubun/pp"
 )
@@ -233,7 +231,7 @@ func TestMarkovAdd(t *testing.T) {
 	}{
 		{
 			input: Input{
-				param: MarkovParam{n: 2, lcs: 2, lc: 3},
+				param: MarkovParam{N: 2, Lcs: 2, Lc: 3},
 				mss: []Morphs{
 					{{Surface: "a"}},
 					{{Surface: "b"}},
@@ -248,7 +246,7 @@ func TestMarkovAdd(t *testing.T) {
 				},
 			},
 			want: &markov{
-				param: &MarkovParam{n: 2, lcs: 2, lc: 3},
+				param: &MarkovParam{N: 2, Lcs: 2, Lc: 3},
 				cs: []*chain{
 					&chain{count: 3, c: chainMap{
 						MorphBOS: &chain{c: chainMap{
@@ -309,7 +307,7 @@ func TestMarkovGenerate(t *testing.T) {
 		{{Surface: "c"}, {Surface: "b"}},
 		{{Surface: "c"}, {Surface: "c"}},
 	}
-	param := MarkovParam{n: 2, lcs: 3, lc: 3, lms: 2, try: 100}
+	param := MarkovParam{N: 2, Lcs: 3, Lc: 3, Lms: 2, Try: 100}
 	m := newMarkov(&param)
 	for _, ms := range mss {
 		m.add(ms)
@@ -348,7 +346,7 @@ testLoop:
 }
 
 func TestMarkovServer(t *testing.T) {
-	param := MarkovParam{n: 2, lcs: 3, lc: 3, lms: 2, try: 100}
+	param := MarkovParam{N: 2, Lcs: 3, Lc: 3, Lms: 2, Try: 100}
 	in := make(chan Morphs)
 	out := MarkovServer(&param, in)
 

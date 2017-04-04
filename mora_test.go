@@ -68,15 +68,15 @@ func TestNewMoraeWeight(t *testing.T) {
 	}{
 		{
 			input: []MoraWeight{},
-			want:  &MoraeWeight{mw: []MoraWeight{}, sum: 0.0},
+			want:  &MoraeWeight{MW: []MoraWeight{}, sum: 0.0},
 		},
 		{
 			input: []MoraWeight{{1.0, 2.0}},
-			want:  &MoraeWeight{mw: []MoraWeight{{1.0, 2.0}}, sum: 3.0},
+			want:  &MoraeWeight{MW: []MoraWeight{{1.0, 2.0}}, sum: 3.0},
 		},
 		{
 			input: []MoraWeight{{1.0, 2.0}, {4.0, 8.0}},
-			want: &MoraeWeight{mw: []MoraWeight{
+			want: &MoraeWeight{MW: []MoraWeight{
 				{1.0, 2.0}, {4.0, 8.0}}, sum: 15.0,
 			},
 		},

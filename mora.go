@@ -78,18 +78,18 @@ func NewMoraeWeight(mw []MoraWeight) *MoraeWeight {
 		sum += m.Consonant
 		sum += m.Vowel
 	}
-	return &MoraeWeight{mw: mw, sum: sum}
+	return &MoraeWeight{MW: mw, sum: sum}
 }
 
 // MoraeWeight defines a weight of rhyming.
 type MoraeWeight struct {
-	mw  []MoraWeight
+	MW  []MoraWeight
 	sum float64
 }
 
 // Similarity returns coolness of rhyming on m0 + m1.
 func (mw *MoraeWeight) Similarity(m0, m1 []Mora) float64 {
-	minLen := len(mw.mw)
+	minLen := len(mw.MW)
 	for _, l := range []int{len(m0), len(m1)} {
 		if minLen > l {
 			minLen = l
@@ -99,7 +99,7 @@ func (mw *MoraeWeight) Similarity(m0, m1 []Mora) float64 {
 		return 0.0
 	}
 
-	weight := mw.mw[len(mw.mw)-minLen:]
+	weight := mw.MW[len(mw.MW)-minLen:]
 	myM0 := m0[len(m0)-minLen:]
 	myM1 := m1[len(m1)-minLen:]
 

@@ -57,11 +57,11 @@ func (c *chain) findRand(ms Morphs) (*Morph, bool) {
 
 // MarkovParam defines Markov chain model's property.
 type MarkovParam struct {
-	n   int // ngram (n >= 2)
-	lcs int // max length of chains
-	lc  int // max length of each chain
-	lms int // max length of generated Morphs
-	try int // max trying count
+	N   int // ngram (n >= 2)
+	Lcs int // max length of chains
+	Lc  int // max length of each chain
+	Lms int // max length of generated Morphs
+	Try int // max trying count
 }
 
 // newMarkov makes new Markov instance
@@ -84,11 +84,11 @@ type markov struct {
 }
 
 func (m *markov) shiftable() bool {
-	return m.learning.count >= m.param.lc
+	return m.learning.count >= m.param.Lc
 }
 
 func (m *markov) shift() {
-	if len(m.cs) >= m.param.lcs {
+	if len(m.cs) >= m.param.Lcs {
 		m.cs[0] = nil
 		m.cs = m.cs[1:]
 	}
@@ -99,7 +99,7 @@ func (m *markov) shift() {
 
 func (m *markov) add(ms Morphs) {
 	// make vector
-	vec := make(Morphs, m.param.n)
+	vec := make(Morphs, m.param.N)
 	for i := range vec {
 		vec[i] = &MorphBOS
 	}
@@ -119,17 +119,17 @@ func (m *markov) add(ms Morphs) {
 
 func (m *markov) generate() (Morphs, bool) {
 gen:
-	for i := 0; i < m.param.try; i++ {
-		ms := make(Morphs, 0, m.param.lms)
+	for i := 0; i < m.param.Try; i++ {
+		ms := make(Morphs, 0, m.param.Lms)
 
 		// make vector
-		vec := make(Morphs, m.param.n)
+		vec := make(Morphs, m.param.N)
 		for i := range vec {
 			vec[i] = &MorphBOS
 		}
 
 		// make phrase
-		for i := 0; i < m.param.lms; i++ {
+		for i := 0; i < m.param.Lms; i++ {
 			cand := make(Morphs, 0, len(m.cs))
 
 			// find
