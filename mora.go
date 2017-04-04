@@ -39,6 +39,9 @@ var Katakana = map[string]Mora{
 	"ッ": Mora{"*xtu", "*xtu"},
 }
 
+// MoraDummy is a dummy mora.
+var MoraDummy = Mora{"*", "*"}
+
 // Mora is a property of mora.
 type Mora struct{ Consonant, Vowel string }
 
@@ -102,6 +105,9 @@ func (mw *MoraeWeight) Similarity(m0, m1 []Mora) float64 {
 
 	var sum float64
 	for i := 0; i < minLen; i++ {
+		if myM0[i] == MoraDummy || myM1[i] == MoraDummy {
+			continue
+		}
 		if myM0[i].Consonant == myM1[i].Consonant {
 			sum += weight[i].Consonant
 		}
@@ -110,4 +116,20 @@ func (mw *MoraeWeight) Similarity(m0, m1 []Mora) float64 {
 		}
 	}
 	return sum / mw.sum
+}
+
+// SimMorphs returns similarity between ms0 and ms1.
+func (mw *MoraeWeight) SimMorphs(ms0, ms1 Morphs) float64 {
+	toMora := func(ms Morphs) []Mora {
+		ans := make([]Mora, 0, len(ms))
+		for _, m := range ms {
+			morae, ok := NewMorae(m.Pronounciation)
+			if !ok && m.Pronounciation == "" {
+				morae = []Mora{MoraDummy}
+			}
+			ans = append(ans, morae...)
+		}
+		return ans
+	}
+	return mw.Similarity(toMora(ms0), toMora(ms1))
 }
