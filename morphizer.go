@@ -8,12 +8,11 @@ import (
 )
 
 // NewMorphizer provides new Morphizer.
-func NewMorphizer() (<-chan Morphs, chan<- string, func()) {
+func NewMorphizer(in <-chan string) (<-chan Morphs, func()) {
 	n := runtime.GOMAXPROCS(0)
 	wg := new(sync.WaitGroup)
 
 	out := make(chan Morphs)
-	in := make(chan string)
 
 	sign := make(chan struct{})
 	stop := func() {
@@ -53,5 +52,5 @@ func NewMorphizer() (<-chan Morphs, chan<- string, func()) {
 		close(out)
 	}()
 
-	return out, in, stop
+	return out, stop
 }

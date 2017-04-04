@@ -349,7 +349,8 @@ testLoop:
 
 func TestMarkovServer(t *testing.T) {
 	param := MarkovParam{n: 2, lcs: 3, lc: 3, lms: 2, try: 100}
-	out, in := MarkovServer(&param)
+	in := make(chan Morphs)
+	out := MarkovServer(&param, in)
 
 	input := []Morphs{
 		{{Surface: "a"}, {Surface: "a"}},

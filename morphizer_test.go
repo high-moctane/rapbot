@@ -36,7 +36,8 @@ func TestNewMorphizer(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		out, in, _ := NewMorphizer()
+		in := make(chan string)
+		out, _ := NewMorphizer(in)
 
 		// input
 		go func() {
