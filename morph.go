@@ -18,27 +18,33 @@ func NewMorph(token tokenizer.Token) *Morph {
 	}
 
 	// ordinary morph
+	elem := func(s string) string {
+		if s == "*" {
+			return ""
+		}
+		return s
+	}
 	m := &Morph{Surface: token.Surface}
 	for i, f := range token.Features() {
 		switch i {
 		case 0:
-			m.PartOfSpeech = f
+			m.PartOfSpeech = elem(f)
 		case 1:
-			m.PartOfSpeechSection1 = f
+			m.PartOfSpeechSection1 = elem(f)
 		case 2:
-			m.PartOfSpeechSection2 = f
+			m.PartOfSpeechSection2 = elem(f)
 		case 3:
-			m.PartOfSpeechSection3 = f
+			m.PartOfSpeechSection3 = elem(f)
 		case 4:
-			m.ConjugatedForm1 = f
+			m.ConjugatedForm1 = elem(f)
 		case 5:
-			m.ConjugatedForm2 = f
+			m.ConjugatedForm2 = elem(f)
 		case 6:
-			m.Inflection = f
+			m.Inflection = elem(f)
 		case 7:
-			m.Reading = f
+			m.Reading = elem(f)
 		case 8:
-			m.Pronounciation = f
+			m.Pronounciation = elem(f)
 		}
 	}
 	return m
