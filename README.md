@@ -12,3 +12,10 @@ go-rapbot is licensed under the MIT license and uses following open source softw
 
   - BSD-2-Clause
 
+- [go-twitter](https://github.com/dghubble/go-twitter)
+
+  - MIT license
+
+- [OAuth1](https://github.com/dghubble/oauth1)
+
+  - MIT license
