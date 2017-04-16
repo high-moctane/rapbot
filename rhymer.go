@@ -31,13 +31,29 @@ func (r *Rhymer) Generate(seed Morphs) ([]Morphs, bool) {
 loop:
 	for len(ans) < r.param.Line {
 		var ms Morphs
+	nextMS:
 		for i := 0; i < r.param.Try; i++ {
 			var ok bool
 			ms, ok = <-r.ms
 			if !ok {
 				return nil, false
 			}
+			if ms[len(ms)-1].PartOfSpeech != "名詞" {
+				continue
+			}
+			for _, a := range ans {
+				if a[len(a)-1].Surface == ms[len(ms)-1].Surface {
+					continue nextMS
+				}
+			}
 			if r.param.MW.SimMorphs(ans[len(ans)-1], ms) >= r.param.Thresh {
+				for _, a := range ans {
+					aSur, _ := a.Surface()
+					msSur, _ := ms.Surface()
+					if aSur == msSur {
+						continue nextMS
+					}
+				}
 				ans = append(ans, ms)
 				continue loop
 			}
@@ -53,7 +69,7 @@ loop:
 // Server runs new Server which makes rhymes.
 func (r *Rhymer) Server() <-chan []Morphs {
 	wg := new(sync.WaitGroup)
-	out := make(chan []Morphs)
+	out := make(chan []Morphs, 100)
 
 	for i := 0; i < runtime.GOMAXPROCS(0); i++ {
 		wg.Add(1)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"math/rand"
 	"runtime"
 	"sync"
@@ -113,6 +114,7 @@ func (m *markov) add(ms Morphs) {
 
 	// shift
 	if m.shiftable() {
+		log.Print("shift")
 		m.shift()
 	}
 }
@@ -161,12 +163,21 @@ gen:
 
 // MarkovServer starts server which can learn and generate phrases.
 func MarkovServer(param *MarkovParam, in <-chan Morphs) <-chan Morphs {
-	out := make(chan Morphs)
+	out := make(chan Morphs, 100)
 
 	go func() {
 		wg := new(sync.WaitGroup)
 		sema := make(chan struct{}, runtime.GOMAXPROCS(0))
 		m := newMarkov(param)
+
+		ready := make(chan struct{})
+		go func() {
+			for {
+				<-m.ready
+				sema <- struct{}{}
+				ready <- struct{}{}
+			}
+		}()
 
 		// server
 		for {
@@ -184,16 +195,16 @@ func MarkovServer(param *MarkovParam, in <-chan Morphs) <-chan Morphs {
 				m.add(ms)
 
 			// generate random Morphs
-			default:
-				sema <- struct{}{}
+			case <-ready:
 				wg.Add(1)
 				go func() {
 					defer wg.Done()
+					<-m.ready
 					if ms, ok := m.generate(); ok {
 						out <- ms
 					}
+					<-sema
 				}()
-				<-sema
 			}
 		}
 	}()

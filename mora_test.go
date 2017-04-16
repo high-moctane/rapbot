@@ -1,8 +1,13 @@
 package main
 
-import "testing"
-import "reflect"
-import "math"
+import (
+	"log"
+	"math"
+	"reflect"
+	"testing"
+
+	"github.com/ikawaha/kagome/tokenizer"
+)
 
 func TestNewMorae(t *testing.T) {
 	type answer struct {
@@ -68,16 +73,16 @@ func TestNewMoraeWeight(t *testing.T) {
 	}{
 		{
 			input: []MoraWeight{},
-			want:  &MoraeWeight{MW: []MoraWeight{}, sum: 0.0},
+			want:  &MoraeWeight{MW: []MoraWeight{}, Sum: 0.0},
 		},
 		{
 			input: []MoraWeight{{1.0, 2.0}},
-			want:  &MoraeWeight{MW: []MoraWeight{{1.0, 2.0}}, sum: 3.0},
+			want:  &MoraeWeight{MW: []MoraWeight{{1.0, 2.0}}, Sum: 3.0},
 		},
 		{
 			input: []MoraWeight{{1.0, 2.0}, {4.0, 8.0}},
 			want: &MoraeWeight{MW: []MoraWeight{
-				{1.0, 2.0}, {4.0, 8.0}}, sum: 15.0,
+				{1.0, 2.0}, {4.0, 8.0}}, Sum: 15.0,
 			},
 		},
 	}
@@ -134,6 +139,31 @@ func TestMoraeWeightSimilarity(t *testing.T) {
 		if math.Abs(ans-test.want) > 0.01 {
 			t.Errorf("(*MoraeWeight).Similarity(%v, %v) ~= %.2f, want %.2f",
 				test.input[0], test.input[1], ans, test.want)
+		}
+	}
+}
+
+func TestMoraeWeightSimMorphs(t *testing.T) {
+	mw := NewMoraeWeight([]MoraWeight{{1.0, 2.0}, {4.0, 8.0}})
+	kagome := tokenizer.New()
+
+	tests := []struct {
+		input [2]string
+		want  float64
+	}{
+		{
+			input: [2]string{"美味しいケーキ", "まずいケーキ"},
+			want:  1.0,
+		},
+	}
+
+	for _, test := range tests {
+		ms0 := NewMorphs(kagome.Tokenize(test.input[0]))
+		ms1 := NewMorphs(kagome.Tokenize(test.input[1]))
+		log.Print(mw.SimMorphs(ms0, ms1))
+		if math.Abs(mw.SimMorphs(ms0, ms1)-test.want) > 0.001 {
+			t.Errorf("(*MoraeWeight).SimMorphs(%v, %v) = %.3f, want %.3f",
+				ms0, ms1, mw.SimMorphs(ms0, ms1), test.want)
 		}
 	}
 }
