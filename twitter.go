@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 )
@@ -13,6 +15,9 @@ type TwitterParam struct {
 	AccessTokenSecret string   `json:"access_token_secret"`
 	LogToScreenName   string   `json:"log_to_screen_name"`
 	Filter            []string `json:"filter"`
+	Freq              int
+	FreqSeconds       time.Duration `json:"freq_seconds"`
+	RoutineMinutes    time.Duration `json:"routine_minutes"`
 }
 
 func newClient(c *config) *twitter.Client {

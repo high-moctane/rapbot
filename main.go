@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
@@ -52,11 +52,16 @@ func run() int {
 		}
 		return dm, resp, err
 	}
+	myTwitterStatus, _, err := client.Accounts.VerifyCredentials(nil)
+	if err != nil {
+		log.Println("twitter verify error:", err)
+		return 1
+	}
 
 	// make channels
-	sampleStr := make(chan string, 100)
-	randMorphs := make(chan Morphs, 100)
-	rhymes := make(chan []Morphs, 100)
+	sampleStr := make(chan string)
+	randMorphs := make(chan Morphs)
+	rhymes := make(chan []Morphs)
 
 	// connect twitter sample
 	stream, err := client.Streams.Sample(&twitter.StreamSampleParams{
@@ -102,7 +107,7 @@ func run() int {
 		if text == "" {
 			return
 		}
-		for _, t := range regexp.MustCompile(`\p{Zs}.+`).Split(text, -1) {
+		for _, t := range regexp.MustCompile(`(\p{Zs}|\n).+`).Split(text, -1) {
 			sampleStr <- t
 		}
 	}
@@ -151,15 +156,95 @@ func run() int {
 	raps := make(chan []Morphs)
 	NewStackServer(raps, rhymes, config.StackParam)
 
-	// print
-	go func() {
-		for rhyme := range raps {
-			for _, ms := range rhyme {
-				p, _ := ms.Surface()
-				fmt.Println(p)
+	// Time Line
+	tl, err := client.Streams.User(&twitter.StreamUserParams{
+		StallWarnings: twitter.Bool(true),
+	})
+	if err != nil {
+		log.Print("cannot connect twitter user stream", err)
+		return 1
+	}
+	defer tl.Stop()
+
+	repFreq := map[int64][]time.Time{}
+	demuxTL := twitter.NewSwitchDemux()
+	demuxTL.Tweet = func(tweet *twitter.Tweet) {
+		myScreenName := "@" + myTwitterStatus.ScreenName
+		if !regexp.MustCompile(`(\A|\A\.)` + myScreenName).Match([]byte(tweet.Text)) {
+			return
+		}
+
+		if freqQueue, ok := repFreq[tweet.User.ID]; ok {
+			now := time.Now()
+			for i, t := range repFreq[tweet.User.ID] {
+				if now.After(t.Add(config.TwitterParam.FreqSeconds * time.Second)) {
+					freqQueue = append(freqQueue[:i], freqQueue[i+1:]...)
+				}
 			}
-			fmt.Println("")
-			time.Sleep(10 * time.Hour)
+			repFreq[tweet.User.ID] = freqQueue
+			if len(freqQueue) >= config.TwitterParam.Freq {
+				log.Println("received too freq reply from:", tweet.User.ScreenName)
+				return
+			}
+		}
+
+		message := "@" + tweet.User.ScreenName + " "
+		select {
+		case rap := <-raps:
+			for i, r := range rap {
+				if i != 0 {
+					message += "\n"
+				}
+				s, _ := r.Surface()
+				message += s
+			}
+		default:
+			message += "ネタ切れ御免。。。"
+		}
+		_, _, err := client.Statuses.Update(message, &twitter.StatusUpdateParams{
+			InReplyToStatusID: tweet.User.ID,
+		})
+		if err != nil {
+			log.Printf("tweet error: %v, message: %q", err, message)
+			return
+		}
+		log.Printf("tweet: %q", message)
+		repFreq[tweet.User.ID] = append(repFreq[tweet.User.ID], time.Now())
+	}
+	demuxTL.StreamDisconnect = func(dscn *twitter.StreamDisconnect) {
+		log.Printf("user stream disconnected: code: %v, stream_name: %q, reason: %q",
+			dscn.Code, dscn.Reason, dscn.StreamName)
+		sendLog("user stream disconnected")
+	}
+	demuxTL.Warning = func(warning *twitter.StallWarning) {
+		log.Printf("user stream stall warning: code: %q, message: %q, percent_full: %q",
+			warning.Code, warning.Message, warning.PercentFull)
+	}
+	demuxTL.FriendsList = func(_ *twitter.FriendsList) {
+		log.Print("user stream connected")
+	}
+	go demuxTL.HandleChan(tl.Messages)
+
+	// routine tweet
+	go func() {
+		for rap := range raps {
+			var message string
+			for i, r := range rap {
+				if i != 0 {
+					message += "\n"
+				}
+				s, _ := r.Surface()
+				message += s
+			}
+			_, _, err := client.Statuses.Update(message, nil)
+			if err != nil {
+				log.Printf("routine tweet error: %v, message: %q", err, message)
+				continue
+			}
+			log.Printf("routine tweet: %q", message)
+			time.Sleep(config.TwitterParam.RoutineMinutes*time.Minute +
+				time.Duration(float64(10*time.Minute)*rand.Float64()))
+			//todo
 		}
 	}()
 
