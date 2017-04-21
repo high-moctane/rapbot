@@ -9,9 +9,9 @@ import (
 	"os"
 	"os/signal"
 	"regexp"
-	"syscall"
-
 	"runtime"
+	"syscall"
+	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
 )
@@ -147,14 +147,19 @@ func run() int {
 		}()
 	}
 
+	// buffer rhymes
+	raps := make(chan []Morphs)
+	NewStackServer(raps, rhymes, config.StackParam)
+
 	// print
 	go func() {
-		for rhyme := range rhymes {
+		for rhyme := range raps {
 			for _, ms := range rhyme {
 				p, _ := ms.Surface()
 				fmt.Println(p)
 			}
 			fmt.Println("")
+			time.Sleep(10 * time.Hour)
 		}
 	}()
 
