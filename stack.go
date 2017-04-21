@@ -34,12 +34,13 @@ type StackParam struct {
 
 // NewStackServer serves fresh rhymes.
 func NewStackServer(out chan []Morphs, in chan []Morphs, conf *StackParam) {
-	log.Println(conf.L)
 	go func() {
 		s := stack{}
 
 		for {
-			log.Println("stack len: ", s.len())
+			if s.len() == 0 {
+				log.Println("warning: rap stack is empty")
+			}
 			switch {
 			case s.len() == 0:
 				s.push(<-in)
