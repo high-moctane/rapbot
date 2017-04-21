@@ -12,7 +12,7 @@ func NewMorphizer(in <-chan string) (<-chan Morphs, func()) {
 	n := runtime.GOMAXPROCS(0)
 	wg := new(sync.WaitGroup)
 
-	out := make(chan Morphs, 100)
+	out := make(chan Morphs)
 
 	sign := make(chan struct{})
 	stop := func() {

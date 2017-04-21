@@ -69,7 +69,7 @@ loop:
 // Server runs new Server which makes rhymes.
 func (r *Rhymer) Server() <-chan []Morphs {
 	wg := new(sync.WaitGroup)
-	out := make(chan []Morphs, 100)
+	out := make(chan []Morphs)
 
 	for i := 0; i < runtime.GOMAXPROCS(0); i++ {
 		wg.Add(1)

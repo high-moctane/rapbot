@@ -163,7 +163,7 @@ gen:
 
 // MarkovServer starts server which can learn and generate phrases.
 func MarkovServer(param *MarkovParam, in <-chan Morphs) <-chan Morphs {
-	out := make(chan Morphs, 100)
+	out := make(chan Morphs)
 
 	go func() {
 		wg := new(sync.WaitGroup)
@@ -206,6 +206,8 @@ func MarkovServer(param *MarkovParam, in <-chan Morphs) <-chan Morphs {
 							out <- ms
 							<-semaOut
 						}()
+					} else {
+						<-semaOut
 					}
 					<-sema
 				}()
