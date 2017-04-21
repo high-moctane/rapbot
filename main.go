@@ -199,7 +199,7 @@ func run() int {
 				message += s
 			}
 		default:
-			message += "ネタ切れ御免。。。"
+			message += "ネタ切れ御免。。。" + time.Now().Format("15:04:05")
 		}
 		_, _, err := client.Statuses.Update(message, &twitter.StatusUpdateParams{
 			InReplyToStatusID: tweet.User.ID,
