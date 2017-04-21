@@ -11,6 +11,7 @@ type config struct {
 	MarkovParams []*MarkovParam `json:"markov_params"`
 	RhymerParams []*RhymerParam `json:"rhymer_params"`
 	TwitterParam *TwitterParam  `json:"twitter_param"`
+	StackParam   *StackParam    `json:"stack_param"`
 }
 
 func newConfig(p string) (*config, error) {

@@ -168,6 +168,7 @@ func MarkovServer(param *MarkovParam, in <-chan Morphs) <-chan Morphs {
 	go func() {
 		wg := new(sync.WaitGroup)
 		sema := make(chan struct{}, runtime.GOMAXPROCS(0))
+		semaOut := make(chan struct{}, cap(sema))
 		m := newMarkov(param)
 
 		ready := make(chan struct{})
@@ -175,6 +176,7 @@ func MarkovServer(param *MarkovParam, in <-chan Morphs) <-chan Morphs {
 			for {
 				<-m.ready
 				sema <- struct{}{}
+				semaOut <- struct{}{}
 				ready <- struct{}{}
 			}
 		}()
@@ -199,9 +201,11 @@ func MarkovServer(param *MarkovParam, in <-chan Morphs) <-chan Morphs {
 				wg.Add(1)
 				go func() {
 					defer wg.Done()
-					<-m.ready
 					if ms, ok := m.generate(); ok {
-						out <- ms
+						go func() {
+							out <- ms
+							<-semaOut
+						}()
 					}
 					<-sema
 				}()
