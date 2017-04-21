@@ -202,7 +202,7 @@ func run() int {
 			message += "ネタ切れ御免。。。" + time.Now().Format("15:04:05")
 		}
 		_, _, err := client.Statuses.Update(message, &twitter.StatusUpdateParams{
-			InReplyToStatusID: tweet.User.ID,
+			InReplyToStatusID: tweet.ID,
 		})
 		if err != nil {
 			log.Printf("tweet error: %v, message: %q", err, message)
