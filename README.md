@@ -1,5 +1,12 @@
 # go-rapbot
 
+この bot は世界中を流れるツイートを学習して、
+ランダムなラップを全自動で生成します。
+
+約 1 時間に 1 回 のペースでラップをつぶやきます。
+
+リプライを送るとラップバトルができます。
+
 ## License
 
 go-rapbot is licensed under the MIT license and uses following open source software.
