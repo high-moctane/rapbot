@@ -52,7 +52,7 @@ func run() int {
 		}
 		return dm, resp, err
 	}
-	myTwitterStatus, _, err := client.Accounts.VerifyCredentials(nil)
+	_, _, err = client.Accounts.VerifyCredentials(nil)
 	if err != nil {
 		log.Println("twitter verify error:", err)
 		return 1
@@ -155,75 +155,6 @@ func run() int {
 	// buffer rhymes
 	raps := make(chan []Morphs)
 	NewStackServer(raps, rhymes, config.StackParam)
-
-	// Time Line
-	tl, err := client.Streams.User(&twitter.StreamUserParams{
-		StallWarnings: twitter.Bool(true),
-	})
-	if err != nil {
-		log.Print("cannot connect twitter user stream", err)
-		return 1
-	}
-	defer tl.Stop()
-
-	repFreq := map[int64][]time.Time{}
-	demuxTL := twitter.NewSwitchDemux()
-	demuxTL.Tweet = func(tweet *twitter.Tweet) {
-		myScreenName := "@" + myTwitterStatus.ScreenName
-		if !regexp.MustCompile(`(\A|\A\.)` + myScreenName).Match([]byte(tweet.Text)) {
-			return
-		}
-
-		if freqQueue, ok := repFreq[tweet.User.ID]; ok {
-			now := time.Now()
-			for i, t := range repFreq[tweet.User.ID] {
-				if now.After(t.Add(config.TwitterParam.FreqSeconds * time.Second)) {
-					freqQueue = append(freqQueue[:i], freqQueue[i+1:]...)
-				}
-			}
-			repFreq[tweet.User.ID] = freqQueue
-			if len(freqQueue) >= config.TwitterParam.Freq {
-				log.Println("received too freq reply from:", tweet.User.ScreenName)
-				return
-			}
-		}
-
-		message := "@" + tweet.User.ScreenName + " "
-		select {
-		case rap := <-raps:
-			for i, r := range rap {
-				if i != 0 {
-					message += "\n"
-				}
-				s, _ := r.Surface()
-				message += s
-			}
-		default:
-			message += "ネタ切れ御免。。。" + time.Now().Format("15:04:05")
-		}
-		_, _, err := client.Statuses.Update(message, &twitter.StatusUpdateParams{
-			InReplyToStatusID: tweet.ID,
-		})
-		if err != nil {
-			log.Printf("tweet error: %v, message: %q", err, message)
-			return
-		}
-		log.Printf("tweet: %q", message)
-		repFreq[tweet.User.ID] = append(repFreq[tweet.User.ID], time.Now())
-	}
-	demuxTL.StreamDisconnect = func(dscn *twitter.StreamDisconnect) {
-		log.Printf("user stream disconnected: code: %v, stream_name: %q, reason: %q",
-			dscn.Code, dscn.Reason, dscn.StreamName)
-		sendLog("user stream disconnected")
-	}
-	demuxTL.Warning = func(warning *twitter.StallWarning) {
-		log.Printf("user stream stall warning: code: %q, message: %q, percent_full: %q",
-			warning.Code, warning.Message, warning.PercentFull)
-	}
-	demuxTL.FriendsList = func(_ *twitter.FriendsList) {
-		log.Print("user stream connected")
-	}
-	go demuxTL.HandleChan(tl.Messages)
 
 	// routine tweet
 	go func() {
