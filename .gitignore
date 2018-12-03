@@ -24,3 +24,6 @@ _testmain.go
 *.prof
 
 /go-rapbot
+
+# go dep
+/vendor
