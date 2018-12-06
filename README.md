@@ -27,3 +27,7 @@ go-rapbot is licensed under the MIT license and uses following open source softw
 - [OAuth1](https://github.com/dghubble/oauth1)
 
   - MIT license
+
+- [pp](https://github.com/k0kubun/pp)
+
+  - MIT license

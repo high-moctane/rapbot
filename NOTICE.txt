@@ -8,6 +8,7 @@ This application uses following open source library.
   b) errors
   c) go-twitter
   d) OAuth1
+  e) pp
 
 which can be obtained from
 
@@ -15,6 +16,7 @@ which can be obtained from
   b) https://github.com/pkg/errors
   c) https://github.com/dghubble/go-twitter
   d) https://github.com/dghubble/oauth1
+  e) https://github.com/k0kubun/pp
 
 
 ===========================================================================
@@ -418,3 +420,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
+================================================================================
+pp
+================================================================================
+
+MIT license
