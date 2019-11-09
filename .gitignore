@@ -23,7 +23,7 @@ _testmain.go
 *.test
 *.prof
 
-/go-rapbot
+/rapbot
+/rapbot-linux
+.env
 
-# go dep
-/vendor
