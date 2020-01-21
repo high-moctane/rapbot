@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"unicode/utf8"
 )
 
 // Weight is a similarity weight for a mora.
@@ -141,20 +140,11 @@ func (rap *Rapper) IsAppendable(lyric Lyric, sentence Sentence) bool {
 	}
 
 	// similarity
-	length := utf8.RuneCountInString(sentence.String())
-	for _, line := range lyric {
-		if l := utf8.RuneCountInString(line.String()); l < length {
-			length = l
-		}
-	}
-	sentenceRune := []rune(sentence.String())
-	sentenceSuffix := string(sentenceRune[len(sentenceRune)-length:])
-	for _, line := range lyric {
-		lineRune := []rune(line.String())
-		lineSuffix := string(lineRune[len(lineRune)-length:])
-		if lineSuffix == sentenceSuffix {
-			return false
-		}
+	// If sentences ends same character, return false.
+	lastSentenceRune := []rune(lyric[len(lyric)-1].String())
+	newSentenceRune := []rune(sentence.String())
+	if lastSentenceRune[len(lastSentenceRune)-1] == newSentenceRune[len(newSentenceRune)-1] {
+		return false
 	}
 
 	return true
