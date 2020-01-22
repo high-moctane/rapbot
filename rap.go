@@ -141,10 +141,16 @@ func (rap *Rapper) IsAppendable(lyric Lyric, sentence Sentence) bool {
 
 	// similarity
 	// If sentences ends same character, return false.
-	lastSentenceRune := []rune(lyric[len(lyric)-1].String())
+	lastSentenceRunes := [][]rune{}
+	for _, sen := range lyric {
+		lastSentenceRunes = append(lastSentenceRunes, []rune(sen.String()))
+	}
 	newSentenceRune := []rune(sentence.String())
-	if lastSentenceRune[len(lastSentenceRune)-1] == newSentenceRune[len(newSentenceRune)-1] {
-		return false
+
+	for _, senRunes := range lastSentenceRunes {
+		if senRunes[len(senRunes)-1] == newSentenceRune[len(newSentenceRune)-1] {
+			return false
+		}
 	}
 
 	return true
